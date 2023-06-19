@@ -1,0 +1,18 @@
+Changing basic image and running multiple containers with a new image
+  1) docker pull httpd:2.4
+  2) docker run --name webtemplate -d httpd:2.4 # starting a container with a basic image
+  3) docker exec -it webtemplate bash # connecting to the image
+      a) apt update && apt install git
+      b) git clone repo
+      c) cp files to htdocs
+  4) docker ps
+  5) docker commit 0d4825dd64d6 example/widgetfactory:v1 # commit changes we did in step 3
+  6) docker images
+  7) docker exec -it webtemplate bash # connecting to the container again to clean
+      a) apt remove git -y && apt autoremove -y && apt clean all
+      b) remove cloned folder
+  8) docker ps
+  9) docker commit 0d4825dd64d6 example/widgetfactory:v2 # commit changes after cleaning
+  10) docker images
+  11) docker run -d --name web1 -p 8081:80 example/widgetfactory:v2
+  12) docker run -d --name web1 -p 8082:80 example/widgetfactory:v2
