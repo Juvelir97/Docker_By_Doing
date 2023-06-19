@@ -1,0 +1,7 @@
+Steps:
+1) sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+2) create docker-ce repo
+3) sudo yum install -y docker-ce #install docker-ce
+4) sudo systemctl enable --now docker  #start the Docker daemon
+5) sudo usermode -aG docker cloud_user # add current user to docker group to be able to run docker commands
+6) docker run hello-world # test
