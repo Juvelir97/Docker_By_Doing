@@ -1,0 +1,10 @@
+Task 1. Download httpd image and run the container
+  1)docker pull httpd:2.4 # download specific version of an image
+  2)docker images # display list of images localy available
+  3)docker run --name httpd -p 8080:80 -d httpd:2.4
+  
+Task 2. 
+  1) git clone https://github.com/linuxacademy/content-widget-factory-inc # clone content of a static web site
+  2) docker stop httpd #stop container from a prev task
+  3) docker rm httpd # remove container called "httpd" to be able to reuse this name
+  4) docker run --name httpd -p 8080:80 -v $(pwd)/web:/usr/local/apache2/htdocs:ro -d httpd:2.4 # run a new container with cloned web content attached to hdocs
