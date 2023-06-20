@@ -1,0 +1,41 @@
+Steps:
+  1) Inspect the Flask application files to learn what files we need to include and exclude from the image. There is a Pipfile.lock, a .gitignore, and a migrations directory. We don't want those in the image.
+  2) Create a .dockerignore file to exclude build and metadata information from the image.
+      .dockerignore
+      Dockerfile
+      .gitignore
+      Pipfile.lock
+      migrations/
+  3) Create the Dockerfile to build the image
+      FROM python:3
+      ENV PYBASE /pybase            #Setup Python environment variables.
+      ENV PYTHONUSERBASE $PYBASE
+      ENV PATH $PYBASE/bin:$PATH
+      RUN pip install pipenv        
+
+      WORKDIR /tmp                # Install dependencies in the container from the Pipfile.
+      COPY Pipfile .
+      RUN pipenv lock
+      RUN PIP_USER=1 PIP_IGNORE_INSTALLED=1 pipenv install -d --system --ignore-pipfile
+
+      COPY . /app/notes
+      WORKDIR /app/notes
+      EXPOSE 80
+      CMD ["flask", "run", "--port=80", "--host=0.0.0.0"]
+  4) Build an image named notesapp with version 0.1
+      docker build -t notesapp:0.1 .
+  5) Use a container of the notesapp image to set up the database.
+      docker run --rm -it --network notes -v /home/cloud_user/notes/migrations:/app/notes/migrations notesapp:0.1 bash  # creating container on db network called notes mounting local folder to a container
+      flask db init && flask db migrate && flask db upgrade  # run this inside the container to connect an app to a db
+  6) Upgrade to Gunicorn(to use in a prod)
+      1)docker run --rm -it -v /home/cloud_user/notes/Pipfile:/tmp/Pipfile notesapp:0.1 bash #mount pipfile to container's dir to update it
+      2)root@cc70fcebefd5:/app/notes# cd /tmp
+      3)root@cc70fcebefd5:/tmp# pipenv install gunicorn
+  7) Upgrade the application code for Gunicorn
+      1). Add the following lines to __init__.py below the import statements:
+          from dotenv import load_dotenv, find_dotenv
+          load_dotenv(find_dotenv())
+     2) Replace the WORKDIR and CMD in the Dockerfile with the below code:
+          WORKDIR /app
+          CMD [ "gunicorn", "-b 0.0.0.0:80", "notes:create_app()"]
+     3) docker build -t notesapp:0.3 .
