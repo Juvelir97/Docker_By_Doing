@@ -1,1 +1,12 @@
-
+Configuring s3 access
+    1)  pip install --upgrade --user awscli
+    2 ) aws configure
+        a) put Access Key ID and Secret Access Key
+    3)  sudo cp -r ~/.aws /root # to allow also root reach s3
+Mount s3 to a local folder
+    1)  sudo yum install s3fs-fuse -y
+    2)  sudo mkdir /tmp/widget-factory
+    3)  sudo s3fs widgetfactory-f7b5f570 /tmp/widget-factory -o allow_other -o use_cache=/tmp/s3fs
+    4)  cp -r widget-factory-inc/web/* /tmp/widget-factory/   #populating the mounted s3 with files
+Run the container
+   1)  docker run -d --name web1 -p 80:80 --mount type=bind,source=/tmp/widget-factory,target=/usr/local/apache2/htdocs,readonly httpd:2.4
