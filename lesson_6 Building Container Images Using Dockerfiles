@@ -1,0 +1,22 @@
+Creating initial Docker file:
+    FROM httpd:2.4
+    RUN apt update -y && apt upgrade -y && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
+Building an image    
+    1) docker build -t widgetfactory:0.1 widget-factory-inc/
+    2)  export showLayers='{{ range .RootFS.Layers }}{{ println . }}{{end}}'  # create var for printing layers only
+    3)  export showSize='{{ .Size }}' # creaete var for printing size only
+    4)  docker inspect -f "$showSize" widgetfactory:0.1  # compare sizing 
+    5)  docker inspect -f "$showLayers" widgetfactory:0.1 
+    6)  docker inspect -f "$showLayers" httpd:2.4
+The second version of a Docker file
+FROM httpd:2.4
+RUN apt update -y && apt upgrade -y && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
+RUN rm -f /usr/local/apache2/htdocs/index.html
+WORKDIR /usr/local/apache2/htdocs
+COPY ./web .
+   1)  vi widget-factory-inc/Dockerfile
+   2)  docker build -t widgetfactory:0.2 widget-factory-inc/
+   3)  docker images
+   4)  docker inspect -f "$showSize" widgetfactory:0.1
+   5)  docker inspect -f "$showSize" widgetfactory:0.2
+   6)  docker run --rm -it widgetfactory:0.2 bash
