@@ -1,0 +1,25 @@
+Steps: 
+    1)Configure syslog.
+        You will need to open rsyslog.conf and make a few changes:
+              vim /etc/rsyslog.conf
+        Uncomment the two UDP syslog receptions:
+              $ModLoad imudp
+              $UDPServerRun 514
+              
+     2) Create the daemon.json file.
+            mkdir /etc/docker
+            vim /etc/docker/daemon.json
+            Add the following content.
+
+            {
+              "log-driver": "syslog",
+               "log-opts": {
+                    "syslog-address": "udp://PRIVATE_IP:514"
+                      }
+             }
+              
+      3)Create a container called syslog-logging using the httpd image.
+            docker container run -d --name syslog-logging --log-driver none httpd   # container will store log in /var/log/messages
+              
+      4) Create a container that uses the JSON file for logging.
+            docker container run -d --name json-logging --log-driver json-file httpd    # container will store the log in json format and it be accessible running docker logs <container_name>
