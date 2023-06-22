@@ -1,0 +1,72 @@
+Steps:
+  1) In the root directory, navigate to lb-challenge and create the Docker Compose file.
+  2) Set the Compose version to 3.2.
+  3) Create three weather-app services:
+        weather-app1
+        weather-app2
+        weather-app3
+  4) The services should build the Dockerfile* that is in the weather-app directory.
+  5) All three should have tty set to true.
+  6) All three containers should be using the frontend network.
+  7) Create a service called loadbalancer.
+  8) It should use the Dockerfile located in the load-balancer directory.
+  9) Set tty to true.
+  10)The port mapping should be set to 80 on the host and 80 on the container.
+  11)The load balancer should be using the frontend network.
+  
+  docker-compose.yml:
+  version: '3.2'
+  services:
+     weather-app1:
+       build: ./weather-app
+       tty: true
+       networks:
+         - frontend
+     weather-app2:
+       build: ./weather-app
+       tty: true
+       networks:
+        - frontend
+     weather-app3:
+       build: ./weather-app
+       tty: true
+     networks:
+       - frontend
+
+      loadbalancer:
+        build: ./load-balancer
+        image: nginx
+        tty: true
+        ports:
+        - '80:80'
+        networks:
+        - frontend
+
+  networks:
+    frontend:
+    
+12) The contents of your nginx.conf file should look like the following:
+
+  events { worker_connections 1024; }
+
+  http {
+    upstream localhost {
+      server weather-app1:3000;
+      server weather-app2:3000;
+      server weather-app3:3000;
+    }
+    server {
+      listen 80;
+      server_name localhost;
+      location / {
+        proxy_pass http://localhost;
+        proxy_set_header Host $host;
+      }
+    }
+  }    
+    
+    
+    
+    
+    
+    
